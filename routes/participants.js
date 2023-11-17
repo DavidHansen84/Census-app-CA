@@ -13,28 +13,46 @@ router.get("/", async function (req, res, next) {
       message: "Participants list is empty, add some participants first"
     });
   } else {
-    let participantsValue = list.props.value
     res.json({
       status: "success",
-      result: participantsValue,
+      result: list,
     });
   }
-  res.send(list);
 });
 
-router.get("/:key", async function (req, res, next) {
-  let item = await participants.get(req.params.key);
-  res.send(item);
+router.get("/details/:email", async function (req, res, next) {
+  let email = req.params.email
+  let participant = await participants.get(email)
+  res.json(participant.props.participant);
+});
+
+router.get("/work/:email", async function (req, res, next) {
+  let email = req.params.email
+  let participant = await participants.get(email)
+  res.json(participant.props.work);
+});
+
+router.get("/home/:email", async function (req, res, next) {
+  let email = req.params.email
+  let participant = await participants.get(email)
+  res.json(participant.props.home);
+});
+
+router.get("/details", async function (req, res, next) {
+  let item = await participants.get();
+  res.json(item);
 });
 
 
-router.post("/", async function (req, res, next) {
+router.post("/add", async function (req, res, next) {
   const { email, firstName, lastName, dob, active, companyname, salary, currency, country, city } = req.body;
   await participants.set(email, {
-    firstName: firstName,
-    secondName: lastName,
-    dob: dob,
-    active: active,
+    participant: { 
+      firstName: firstName,
+      secondName: lastName,
+      dob: dob,
+      active: active
+    },
     work: { 
       companyname: companyname,
       salary: salary,
@@ -45,17 +63,41 @@ router.post("/", async function (req, res, next) {
       city: city,
     },
   });
-  res.end();
+  let participant = await participants.get(email)
+  console.log(participant.props)
+  addedText =  "Participant " + participant.props.participant.firstName + " " + participant.props.participant.secondName+ " added"
+  res.json({
+    status: "success",
+    result: addedText
+  });
 });
 
-router.put("/", async function (req, res, next) {
-  const { email, firstName, lastName, age } = req.body;
+router.put("/add", async function (req, res, next) {
+  const { email, firstName, lastName, dob, active, companyname, salary, currency, country, city } = req.body;
   await participants.set(email, {
-    firstName: firstName,
-    secondName: lastName,
-    age: age,
+    participant: { 
+      firstName: firstName,
+      secondName: lastName,
+      dob: dob,
+      active: active
+    },
+    work: { 
+      companyname: companyname,
+      salary: salary,
+      currency: currency
+    },
+    home: {
+      country: country,
+      city: city,
+    },
   });
-  res.end();
+  let participant = await participants.get(email)
+  console.log(participant.props)
+  editedText =  "Participant " + participant.props.participant.firstName + " " + participant.props.participant.secondName+ " edited"
+  res.json({
+    status: "success",
+    result: editedText
+  });
 });
 
 router.delete("/:key", async function (req, res, next) {
