@@ -38,14 +38,21 @@ router.get("/home/:email", async function (req, res, next) {
   res.json(participant.props.home);
 });
 
+// NOT DONE
 router.get("/details", async function (req, res, next) {
+  let item = await participants.get();
+  res.json(item);
+});
+
+// NOT DONE
+router.get("/details/deleted", async function (req, res, next) {
   let item = await participants.get();
   res.json(item);
 });
 
 
 router.post("/add", async function (req, res, next) {
-  const { email, firstName, lastName, dob, active, companyname, salary, currency, country, city } = req.body;
+  const { email, firstName, lastName, dob, active, companyName, salary, currency, country, city } = req.body;
   await participants.set(email, {
     participant: { 
       firstName: firstName,
@@ -54,7 +61,7 @@ router.post("/add", async function (req, res, next) {
       active: active
     },
     work: { 
-      companyname: companyname,
+      companyName: companyName,
       salary: salary,
       currency: currency
     },
@@ -73,7 +80,7 @@ router.post("/add", async function (req, res, next) {
 });
 
 router.put("/add", async function (req, res, next) {
-  const { email, firstName, lastName, dob, active, companyname, salary, currency, country, city } = req.body;
+  const { email, firstName, lastName, dob, active, companyName, salary, currency, country, city } = req.body;
   await participants.set(email, {
     participant: { 
       firstName: firstName,
@@ -82,7 +89,7 @@ router.put("/add", async function (req, res, next) {
       active: active
     },
     work: { 
-      companyname: companyname,
+      companyName: companyName,
       salary: salary,
       currency: currency
     },
@@ -100,9 +107,35 @@ router.put("/add", async function (req, res, next) {
   });
 });
 
-router.delete("/:key", async function (req, res, next) {
-  await participants.delete(req.params.key);
-  res.end();
+// NOT DONE
+router.delete("/:email", async function (req, res, next) {
+  const email = req.params.email;
+  console.log(email)
+  let participant = await participants.get(email)
+  console.log(participant.props)
+  await participants.set(email, {
+    participant: { 
+      firstName: participant.props.participant.firstName,
+      secondName: participant.props.participant.secondName,
+      dob: participant.props.participant.dob,
+      active: 0
+    },
+    work: { 
+      companyname: participant.props.work.companyName,
+      salary: participant.props.work.salary,
+      currency: participant.props.work.currency
+    },
+    home: {
+      country: participant.props.home.country,
+      city: participant.props.home.city,
+    },
+  });
+
+  deletedText =  "Participant " + participant.props.participant.firstName + " " + participant.props.participant.secondName+ " deleted"
+  res.json({
+    status: "success",
+    result: deletedText
+  });
 });
 
 module.exports = router;
