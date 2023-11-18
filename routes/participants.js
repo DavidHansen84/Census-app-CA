@@ -16,6 +16,7 @@ router.get("/", async function (req, res, next) {
         status: "fail",
         message: "Participants list is empty, add some participants first"
       });
+      return res.end();
     } else {
       res.json({
         status: "success",
@@ -41,6 +42,7 @@ router.get("/details", async function (req, res, next) {
         status: "fail",
         message: "Participants list is empty, add some participants first"
       });
+      return res.end();
     } else {
 
       list.results.forEach(item => {
@@ -78,6 +80,7 @@ router.get("/details/deleted", async function (req, res, next) {
         status: "fail",
         message: "Participants list is empty, add some participants first"
       });
+      return res.end();
     } else {
 
       list.results.forEach(item => {
@@ -113,6 +116,7 @@ router.get("/details/:email", async function (req, res, next) {
         status: "Bad Request",
         error: "email not provided"
       });
+      return res.end();
     } else {
       let participant = await participants.get(email)
       if (!participant) {
@@ -120,6 +124,7 @@ router.get("/details/:email", async function (req, res, next) {
           status: "fail",
           message: "Participant not found"
         });
+        return res.end();
       }
       if (participant.props.participant.active === 1) 
       { 
@@ -127,6 +132,7 @@ router.get("/details/:email", async function (req, res, next) {
           status: "success",
           result: participant.props.participant,
         });
+        return res.end();
       } else {
         res.status(400).json({
           status: "fail",
@@ -150,6 +156,7 @@ router.get("/work/:email", async function (req, res, next) {
         status: "Bad Request",
         error: "email not provided"
       });
+      return res.end();
     } else {
       let participant = await participants.get(email)
       if (!participant) {
@@ -157,6 +164,7 @@ router.get("/work/:email", async function (req, res, next) {
           status: "fail",
           message: "Participant not found"
         });
+        return res.end();
       } 
       if (participant.props.participant.active === 1) 
       { 
@@ -164,6 +172,7 @@ router.get("/work/:email", async function (req, res, next) {
           status: "success",
           result: participant.props.work,
         });
+        return res.end();
       } else {
         res.status(400).json({
           status: "fail",
@@ -188,6 +197,7 @@ router.get("/home/:email", async function (req, res, next) {
         status: "Bad Request",
         error: "email not provided"
       });
+      return res.end();
     } else {
       let participant = await participants.get(email)
       if (!participant) {
@@ -195,6 +205,7 @@ router.get("/home/:email", async function (req, res, next) {
           status: "fail",
           message: "Participant not found"
         });
+        return res.end();
       } 
       if (participant.props.participant.active === 1) 
       { 
@@ -202,6 +213,7 @@ router.get("/home/:email", async function (req, res, next) {
           status: "success",
           result: participant.props.home,
         });
+        return res.end();
       } else {
         res.status(400).json({
           status: "fail",
