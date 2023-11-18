@@ -40,10 +40,43 @@ router.get("/home/:email", async function (req, res, next) {
 
 // NOT DONE
 router.get("/details", async function (req, res, next) {
-  const email = req.body.email;
-  let item = await participants.get(email);
-  res.json(item);
+  try {
+    let list = await participants.list();
+    let emails = []
+    let participantsDetails = [];
+    if (list == null ) {
+      return res.json({
+        status: "fail",
+        message: "Participants list is empty, add some participants first"
+      });
+    } else {
+      
+      list.results.forEach(item => {
+        let key = item.key
+        emails.push(key)
+      });
+      for (const email of emails) {
+        let participant = await participants.get(email);
+        console.log(participant.props.active)
+        if (participant.props.participant.active === 1) {
+          participantsDetails.push(participant.props.participant);
+        }
+      }
+      res.json({
+        status: "success",
+        result: participantsDetails,
+      });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      status: "error",
+      error: "Internal Server Error",
+    });
+  }
 });
+
+
 
 // NOT DONE
 router.get("/details/deleted", async function (req, res, next) {
@@ -108,7 +141,7 @@ router.put("/add", async function (req, res, next) {
   });
 });
 
-// NOT DONE
+
 router.delete("/:email", async function (req, res, next) {
   try {
     const email = req.params.email;
@@ -132,7 +165,6 @@ router.delete("/:email", async function (req, res, next) {
       result: "Participant " + participant.props.participant.firstName + " " + participant.props.participant.secondName + " deleted",
     });
   } catch (error) {
-    console.error("Error:", error);
     res.status(500).json({
       status: "error",
       error: "Internal Server Error",
