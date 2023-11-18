@@ -40,7 +40,8 @@ router.get("/home/:email", async function (req, res, next) {
 
 // NOT DONE
 router.get("/details", async function (req, res, next) {
-  let item = await participants.get();
+  const email = req.body.email;
+  let item = await participants.get(email);
   res.json(item);
 });
 
@@ -109,33 +110,35 @@ router.put("/add", async function (req, res, next) {
 
 // NOT DONE
 router.delete("/:email", async function (req, res, next) {
-  const email = req.params.email;
-  console.log(email)
-  let participant = await participants.get(email)
-  console.log(participant.props)
-  await participants.set(email, {
-    participant: { 
-      firstName: participant.props.participant.firstName,
-      secondName: participant.props.participant.secondName,
-      dob: participant.props.participant.dob,
-      active: 0
-    },
-    work: { 
-      companyname: participant.props.work.companyName,
-      salary: participant.props.work.salary,
-      currency: participant.props.work.currency
-    },
-    home: {
-      country: participant.props.home.country,
-      city: participant.props.home.city,
-    },
-  });
-
-  deletedText =  "Participant " + participant.props.participant.firstName + " " + participant.props.participant.secondName+ " deleted"
-  res.json({
-    status: "success",
-    result: deletedText
-  });
+  try {
+    const email = req.params.email;
+    let participant = await participants.get(email);
+    if (!participant) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Participant not found.",
+      });
+    }
+    await participants.set(email, {
+      participant: {
+        ...participant.props.participant,
+        active: 0,
+      },
+      work: participant.props.work,
+      home: participant.props.home,
+    });
+    res.json({
+      status: "success",
+      result: "Participant " + participant.props.participant.firstName + " " + participant.props.participant.secondName + " deleted",
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      status: "error",
+      error: "Internal Server Error",
+    });
+  }
 });
+
 
 module.exports = router;
